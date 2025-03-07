@@ -1,5 +1,6 @@
 # lib/employee.py
 from __init__ import CURSOR, CONN
+from department import Department
 
 
 class Employee:
@@ -14,7 +15,8 @@ class Employee:
 
     def __repr__(self):
         return (
-            f"<Employee {self.id}: {self.name}, {self.job_title}>"
+            f"<Employee {self.id}: {self.name}, {self.job_title}>" +
+            f"Department ID: {self.department_id}>"
         )
 
     @classmethod
@@ -57,10 +59,11 @@ class Employee:
         """Update the table row corresponding to the current Employee instance."""
         sql = """
             UPDATE employees
-            SET name = ?, job_title = ?
+            SET name = ?, job_title = ?, department_id = ?
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.name, self.job_title, self.id))
+        CURSOR.execute(sql, (self.name, self.job_title, self.department_id, self.id))
+
         CONN.commit()
 
     def delete(self):
@@ -82,9 +85,9 @@ class Employee:
         self.id = None
 
     @classmethod
-    def create(cls, name, job_title):
+    def create(cls, name, job_title, department_id):
         """ Initialize a new Employee instance and save the object to the database """
-        employee = cls(name, job_title)
+        employee = cls(name, job_title, department_id)
         employee.save()
         return employee
 
@@ -98,6 +101,7 @@ class Employee:
             # ensure attributes match row values in case local instance was modified
             employee.name = row[1]
             employee.job_title = row[2]
+            employee.department_id = row[3]
         else:
             # not in dictionary, create new instance and add to dictionary
             employee = cls(row[1], row[2])
